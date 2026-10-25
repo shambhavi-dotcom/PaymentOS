@@ -1,0 +1,2 @@
+ALTER TABLE payments
+    ADD COLUMN routing_strategy VARCHAR(30) NOT NULL DEFAULT 'HEALTH_AWARE';

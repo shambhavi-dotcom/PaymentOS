@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.paymentos.PostgresPaymentIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.19 s -- in com.paymentos.PostgresPaymentIntegrationTest

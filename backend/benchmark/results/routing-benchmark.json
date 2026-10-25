@@ -1,0 +1,145 @@
+{
+  "schemaVersion" : 1,
+  "generatedAt" : "2026-10-25T20:14:14.919317400Z",
+  "methodology" : {
+    "stateIsolation" : "Payment, attempt, event, and processor records are deleted and recreated and the round-robin cursor is reset before every seed and strategy run.",
+    "workload" : "Each seed generates the same merchant, amount, currency, and customer references for both strategies; each run uses unique deterministic idempotency keys.",
+    "executionOrder" : "Strategy execution order alternates by seed to reduce systematic warm-up bias.",
+    "execution" : "In-process PaymentService benchmark using Spring Boot and H2 in PostgreSQL compatibility mode",
+    "limitations" : "Synthetic in-process measurements are not external-network latency or production throughput. Results are observations, not a guaranteed strategy ranking.",
+    "seeds" : [ 20261026, 7341289, 99182731 ],
+    "normalCondition" : "All processors enabled with zero configured pre-execution failure and timeout probabilities; simulator declines remain possible.",
+    "failureCondition" : "Processor A configured for 100% pre-execution failure probability; processors B and C remain at zero configured failure and timeout probabilities.",
+    "latency" : "Processor attempt durationMs recorded by the simulator; throughput uses wall-clock time around payment creation calls only.",
+    "paymentsPerStrategyPerScenario" : 300
+  },
+  "recoveryCheck" : {
+    "expiredOpenCircuitSelectedForProbe" : true,
+    "oneProbeReservation" : true,
+    "successfulProbeClosedCircuit" : true,
+    "cooldownSeconds" : 30
+  },
+  "scenarios" : [ {
+    "name" : "normal",
+    "processorAConfiguredFailureProbability" : 0.0,
+    "processorAConfiguredTimeoutProbability" : 0.0,
+    "processorBAndCConfiguredFailureProbability" : 0.0,
+    "processorBAndCConfiguredTimeoutProbability" : 0.0,
+    "results" : {
+      "ROUND_ROBIN" : {
+        "totalPayments" : 300,
+        "successfulPayments" : 274,
+        "failedPayments" : 26,
+        "unknownPayments" : 0,
+        "paymentSuccessRatePct" : 91.33,
+        "processorAttempts" : 300,
+        "attemptOutcomes" : {
+          "SUCCESS" : 274,
+          "DECLINED" : 26
+        },
+        "successfulProcessorAttempts" : 274,
+        "attemptSuccessRatePct" : 91.33,
+        "averageAttemptLatencyMs" : 183.51,
+        "p95AttemptLatencyMs" : 233,
+        "throughputPaymentsPerSecond" : 21.16,
+        "processorSelectionDistribution" : {
+          "Benchmark A" : 102,
+          "Benchmark B" : 99,
+          "Benchmark C" : 99
+        },
+        "processorCircuitStateAtEndOfEachSeedRun" : {
+          "CLOSED" : 9
+        },
+        "measuredPaymentCallTimeMs" : 14179.63
+      },
+      "HEALTH_AWARE" : {
+        "totalPayments" : 300,
+        "successfulPayments" : 274,
+        "failedPayments" : 26,
+        "unknownPayments" : 0,
+        "paymentSuccessRatePct" : 91.33,
+        "processorAttempts" : 300,
+        "attemptOutcomes" : {
+          "SUCCESS" : 274,
+          "DECLINED" : 26
+        },
+        "successfulProcessorAttempts" : 274,
+        "attemptSuccessRatePct" : 91.33,
+        "averageAttemptLatencyMs" : 138.59,
+        "p95AttemptLatencyMs" : 184,
+        "throughputPaymentsPerSecond" : 25.5,
+        "processorSelectionDistribution" : {
+          "Benchmark A" : 278,
+          "Benchmark B" : 22
+        },
+        "processorCircuitStateAtEndOfEachSeedRun" : {
+          "CLOSED" : 9
+        },
+        "measuredPaymentCallTimeMs" : 11766.28
+      }
+    }
+  }, {
+    "name" : "processor-a-failure",
+    "processorAConfiguredFailureProbability" : 1.0,
+    "processorAConfiguredTimeoutProbability" : 0.0,
+    "processorBAndCConfiguredFailureProbability" : 0.0,
+    "processorBAndCConfiguredTimeoutProbability" : 0.0,
+    "results" : {
+      "ROUND_ROBIN" : {
+        "totalPayments" : 300,
+        "successfulPayments" : 274,
+        "failedPayments" : 26,
+        "unknownPayments" : 0,
+        "paymentSuccessRatePct" : 91.33,
+        "processorAttempts" : 306,
+        "attemptOutcomes" : {
+          "SUCCESS" : 274,
+          "DECLINED" : 26,
+          "FAILED_BEFORE_EXECUTION" : 6
+        },
+        "successfulProcessorAttempts" : 274,
+        "attemptSuccessRatePct" : 89.54,
+        "averageAttemptLatencyMs" : 206.58,
+        "p95AttemptLatencyMs" : 233,
+        "throughputPaymentsPerSecond" : 39.43,
+        "processorSelectionDistribution" : {
+          "Benchmark A" : 6,
+          "Benchmark B" : 153,
+          "Benchmark C" : 147
+        },
+        "processorCircuitStateAtEndOfEachSeedRun" : {
+          "CLOSED" : 6,
+          "OPEN" : 3
+        },
+        "measuredPaymentCallTimeMs" : 7608.94
+      },
+      "HEALTH_AWARE" : {
+        "totalPayments" : 300,
+        "successfulPayments" : 274,
+        "failedPayments" : 26,
+        "unknownPayments" : 0,
+        "paymentSuccessRatePct" : 91.33,
+        "processorAttempts" : 303,
+        "attemptOutcomes" : {
+          "SUCCESS" : 274,
+          "DECLINED" : 26,
+          "FAILED_BEFORE_EXECUTION" : 3
+        },
+        "successfulProcessorAttempts" : 274,
+        "attemptSuccessRatePct" : 90.43,
+        "averageAttemptLatencyMs" : 185.29,
+        "p95AttemptLatencyMs" : 184,
+        "throughputPaymentsPerSecond" : 44.0,
+        "processorSelectionDistribution" : {
+          "Benchmark A" : 3,
+          "Benchmark B" : 289,
+          "Benchmark C" : 11
+        },
+        "processorCircuitStateAtEndOfEachSeedRun" : {
+          "CLOSED" : 9
+        },
+        "measuredPaymentCallTimeMs" : 6818.55
+      }
+    }
+  } ]
+}
